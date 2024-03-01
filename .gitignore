@@ -1,0 +1,9 @@
+# Zig build artifacts
+/zig-cache/
+/zig-out/
+
+# Nix build output
+/result
+
+# Test postgres configuration
+/test
