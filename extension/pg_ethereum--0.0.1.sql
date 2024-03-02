@@ -12,9 +12,23 @@ CREATE FUNCTION uint8out(uint8) RETURNS cstring
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8out';
 
+CREATE FUNCTION uint8receive(internal) RETURNS uint8
+    IMMUTABLE
+    STRICT
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'uint8receive';
+
+CREATE FUNCTION uint8send(uint8) RETURNS bytea
+    IMMUTABLE
+    STRICT
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'uint8send';
+
 CREATE TYPE uint8 (
     INPUT = uint8in,
     OUTPUT = uint8out,
+    RECEIVE = uint8receive,
+    SEND = uint8send,
     INTERNALLENGTH = 8,
     PASSEDBYVALUE,
     -- Only value for 8-byte alignment:
@@ -24,13 +38,13 @@ CREATE TYPE uint8 (
 );
 
 
-CREATE CAST (bigint AS uint8) WITH INOUT AS ASSIGNMENT;
+CREATE CAST (bigint AS uint8) WITHOUT FUNCTION AS ASSIGNMENT;
 CREATE CAST (double precision AS uint8) WITH INOUT AS ASSIGNMENT;
 CREATE CAST (int AS uint8) WITH INOUT AS ASSIGNMENT;
 CREATE CAST (numeric AS uint8) WITH INOUT AS ASSIGNMENT;
 CREATE CAST (real AS uint8) WITH INOUT AS ASSIGNMENT;
 
-CREATE CAST (uint8 AS bigint) WITH INOUT AS IMPLICIT;
+CREATE CAST (uint8 AS bigint) WITHOUT FUNCTION AS IMPLICIT;
 CREATE CAST (uint8 AS double precision) WITH INOUT AS IMPLICIT;
 CREATE CAST (uint8 AS int) WITH INOUT AS IMPLICIT;
 CREATE CAST (uint8 AS numeric) WITH INOUT AS IMPLICIT;

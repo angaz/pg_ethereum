@@ -39,12 +39,16 @@ pub inline fn function_info_v1() [*c]const pg.Pg_finfo_record {
     return &finfo.static;
 }
 
-pub inline fn getArgUInt64(fcinfo: pg.FunctionCallInfo, n: usize) u64 {
-    return pg.DatumGetUInt64(fcinfo.*.args()[n].value);
+pub inline fn getArgValue(comptime T: type, fcinfo: pg.FunctionCallInfo, n: usize) T {
+    return @as(T, @bitCast(fcinfo.*.args()[n].value));
 }
 
 pub inline fn datumNull() pg.Datum {
     return @as(pg.Datum, 0);
+}
+
+pub inline fn getDatum(value: anytype) pg.Datum {
+    return @as(pg.Datum, @bitCast(value));
 }
 
 pub inline fn getArgCString(fcinfo: pg.FunctionCallInfo, n: usize) []u8 {
@@ -55,6 +59,10 @@ pub inline fn getArgCString(fcinfo: pg.FunctionCallInfo, n: usize) []u8 {
 
 pub inline fn getArgPointer(comptime T: type, fcinfo: pg.FunctionCallInfo, n: usize) T {
     return @ptrCast(@alignCast(pg.DatumGetPointer(fcinfo.*.args()[n].value)));
+}
+
+pub fn pq_getmsguint64(msg: pg.StringInfo) u64 {
+    return @bitCast(pg.pq_getmsgint64(msg));
 }
 
 // Macros that failed to get translated properly by translate-c, needed for varint deserialization

@@ -10,9 +10,11 @@ INSERT INTO test1 (
     val1
 )
 VALUES
-    (0::numeric),
-    (1::numeric),
-    (1000::numeric),
-    (17909126868192198655::numeric);  -- Value bigger than int8
+    (0),
+    (1),
+    (1000),
+    ('17223372036854775808'),  -- Value bigger than int8
+    (-100::bigint)
+;
 
 SELECT * FROM test1;
