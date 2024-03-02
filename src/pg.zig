@@ -1,8 +1,11 @@
+const std = @import("std");
 const pg = @cImport({
     @cInclude("postgres.h");
-    @cInclude("fmgr.h");
-    @cInclude("varatt.h");
     @cInclude("access/hash.h");
+    @cInclude("fmgr.h");
+    @cInclude("libpq/pqformat.h");
+    @cInclude("utils/sortsupport.h");
+    @cInclude("varatt.h");
 });
 
 // Export the `pg` namespace
@@ -22,10 +25,11 @@ pub fn error_report(elevel: c_int, errcode: c_int, errmsg: [:0]const u8) void {
 
 // Deserializes a Postgres text value into a Zig slice
 pub fn span_text(arg: [*c]pg.text) []u8 {
+    std.debug.print("len: {d}\n", .{arg.*.vl_len_});
     return VARDATA_ANY(arg)[0..@intCast(VARSIZE_ANY_EXHDR(arg))];
 }
 
-pub fn function_info_v1() callconv(.C) [*c]const pg.Pg_finfo_record {
+pub inline fn function_info_v1() [*c]const pg.Pg_finfo_record {
     const finfo = struct {
         const static: pg.Pg_finfo_record = pg.Pg_finfo_record{
             .api_version = 1,
@@ -33,6 +37,24 @@ pub fn function_info_v1() callconv(.C) [*c]const pg.Pg_finfo_record {
     };
 
     return &finfo.static;
+}
+
+pub inline fn getArgUInt64(fcinfo: pg.FunctionCallInfo, n: usize) u64 {
+    return pg.DatumGetUInt64(fcinfo.*.args()[n].value);
+}
+
+pub inline fn datumNull() pg.Datum {
+    return @as(pg.Datum, 0);
+}
+
+pub inline fn getArgCString(fcinfo: pg.FunctionCallInfo, n: usize) []u8 {
+    const inStr: [*c]u8 = pg.DatumGetCString(fcinfo.*.args()[n].value);
+
+    return std.mem.span(inStr);
+}
+
+pub inline fn getArgPointer(comptime T: type, fcinfo: pg.FunctionCallInfo, n: usize) T {
+    return @ptrCast(@alignCast(pg.DatumGetPointer(fcinfo.*.args()[n].value)));
 }
 
 // Macros that failed to get translated properly by translate-c, needed for varint deserialization

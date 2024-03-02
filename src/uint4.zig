@@ -1,7 +1,10 @@
 const std = @import("std");
 const pg = @import("./pg.zig");
 
-pub export const pg_finfo_uint4in = pg.function_info_v1;
+pub export fn pg_finfo_uint4in() [*c]const pg.Pg_finfo_record {
+    return pg.function_info_v1();
+}
+
 pub export fn uint4in(fcinfo: pg.FunctionCallInfo) pg.Datum {
     const in: [*c]pg.text = pg.DatumGetTextPP(fcinfo.*.args()[0].value);
 
@@ -25,7 +28,10 @@ pub export fn uint4in(fcinfo: pg.FunctionCallInfo) pg.Datum {
     return pg.UInt32GetDatum(value);
 }
 
-pub export const pg_finfo_uint4out = pg.function_info_v1;
+pub export fn pg_finfo_uint4out() [*c]const pg.Pg_finfo_record {
+    return pg.function_info_v1();
+}
+
 pub export fn uint4out(fcinfo: pg.FunctionCallInfo) pg.Datum {
     const in: u32 = pg.DatumGetUInt32(fcinfo.*.args()[0].value);
     const buf = pg.palloc(11) orelse unreachable;
@@ -36,7 +42,10 @@ pub export fn uint4out(fcinfo: pg.FunctionCallInfo) pg.Datum {
     return pg.CStringGetDatum(result.ptr);
 }
 
-pub export const pg_info_uint4hash = pg.function_info_v1;
+pub export fn pg_info_uint4hash() [*c]const pg.Pg_finfo_record {
+    return pg.function_info_v1();
+}
+
 pub export fn uint4hash(fcinfo: pg.FunctionCallInfo) pg.Datum {
     const value: u32 = pg.DatumGetUInt32(fcinfo.*.args()[0].value);
 
