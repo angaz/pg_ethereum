@@ -2,6 +2,7 @@ const pg = @cImport({
     @cInclude("postgres.h");
     @cInclude("fmgr.h");
     @cInclude("varatt.h");
+    @cInclude("access/hash.h");
 });
 
 // Export the `pg` namespace
@@ -24,7 +25,7 @@ pub fn span_text(arg: [*c]pg.text) []u8 {
     return VARDATA_ANY(arg)[0..@intCast(VARSIZE_ANY_EXHDR(arg))];
 }
 
-pub fn function_info_v1() [*c]const pg.Pg_finfo_record {
+pub fn function_info_v1() callconv(.C) [*c]const pg.Pg_finfo_record {
     const finfo = struct {
         const static: pg.Pg_finfo_record = pg.Pg_finfo_record{
             .api_version = 1,
