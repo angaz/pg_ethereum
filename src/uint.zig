@@ -1,7 +1,7 @@
 const std = @import("std");
 const pg = @import("./pg.zig");
 
-pub inline fn in(comptime T: type, base: u8, fcinfo: pg.FunctionCallInfo) pg.Datum {
+pub inline fn in(comptime T: type, comptime base: u8, fcinfo: pg.FunctionCallInfo) pg.Datum {
     const inStr = pg.getArgCString(fcinfo, 0);
 
     const value = std.fmt.parseInt(T, inStr, base) catch |err| {
@@ -24,21 +24,20 @@ pub inline fn in(comptime T: type, base: u8, fcinfo: pg.FunctionCallInfo) pg.Dat
     return pg.getDatum(value);
 }
 
-pub inline fn out(comptime T: type, base: u8, fcinfo: pg.FunctionCallInfo) pg.Datum {
+pub inline fn out(comptime T: type, comptime base: u8, fcinfo: pg.FunctionCallInfo) pg.Datum {
     const value = pg.getArgValue(T, fcinfo, 0);
 
     // number of digits + 1 for NULL
     const outLen: usize = switch (base) {
-        16 => @sizeOf(T) * 2 + 1,
-        10 => {
-            switch (value) {
-                0...999 => 4,
-                1000...9999999 => 8,
-                10000000...99999999999 => 12,
-                100000000000...999999999999999 => 16,
-                else => 21,
-            }
+        10 => switch (@as(u64, value)) {
+            0...999 => 4,
+            1000...9999999 => 8,
+            10000000...99999999999 => 12,
+            100000000000...999999999999999 => 16,
+            else => 21,
         },
+        16 => @sizeOf(T) * 2 + 1,
+        else => unreachable,
     };
     const buf = pg.palloc(outLen) orelse return pg.datumNull();
     const result: []u8 = @as([*c]u8, @ptrCast(buf))[0..outLen];
@@ -77,7 +76,7 @@ pub inline fn send(comptime T: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
     return pg.PointerGetDatum(bytea);
 }
 
-pub fn makeBTreeFastCMP(comptime T: type) fn (pg.Datum, pg.Datum, pg.SortSupport) i32 {
+pub fn makeBTreeFastCMP(comptime T: type) fn (pg.Datum, pg.Datum, pg.SortSupport) callconv(.C) i32 {
     const func = struct {
         fn fastcmp(arg1: pg.Datum, arg2: pg.Datum, _: pg.SortSupport) callconv(.C) i32 {
             const a = pg.datumGetValue(T, arg1);

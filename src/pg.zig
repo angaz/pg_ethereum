@@ -30,7 +30,7 @@ pub fn span_text(arg: [*c]pg.text) []u8 {
     return VARDATA_ANY(arg)[0..@intCast(VARSIZE_ANY_EXHDR(arg))];
 }
 
-pub inline fn function_info_v1() [*c]const pg.Pg_finfo_record {
+pub inline fn function_info_v1() FinfoRecord {
     const finfo = struct {
         const static: pg.Pg_finfo_record = pg.Pg_finfo_record{
             .api_version = 1,
@@ -41,7 +41,11 @@ pub inline fn function_info_v1() [*c]const pg.Pg_finfo_record {
 }
 
 pub inline fn datumGetValue(comptime T: type, datum: pg.Datum) T {
-    return @as(T, @bitCast(datum));
+    switch (T) {
+        u32 => return pg.DatumGetUInt32(datum),
+        u64 => return pg.DatumGetUInt64(datum),
+        else => unreachable,
+    }
 }
 
 pub inline fn getArgValue(comptime T: type, fcinfo: pg.FunctionCallInfo, n: usize) T {
@@ -53,7 +57,7 @@ pub inline fn datumNull() pg.Datum {
 }
 
 pub inline fn getDatum(value: anytype) pg.Datum {
-    return @as(pg.Datum, @bitCast(value));
+    return @as(pg.Datum, @bitCast(@as(u64, value)));
 }
 
 pub inline fn getArgCString(fcinfo: pg.FunctionCallInfo, n: usize) []u8 {

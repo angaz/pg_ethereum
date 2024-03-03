@@ -3,12 +3,6 @@ CREATE TYPE uint4hex;
 CREATE TYPE uint8;
 CREATE TYPE uint8hex;
 
--- START aliases
-
-CREATE TYPE fork_hash AS uint4hex;
-
--- END aliases
-
 -- START uint8
 
 CREATE FUNCTION uint8in(cstring) RETURNS uint8
@@ -233,11 +227,11 @@ CREATE FUNCTION btuint8sortsupport(internal) RETURNS void
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'btuint8sortsupport';
 
-CREATE FUNCTION hashuint8(uint8) RETURNS int4
+CREATE FUNCTION uint8hash(uint8) RETURNS int4
     IMMUTABLE
     STRICT
     LANGUAGE C
-    AS '$libdir/pg_ethereum', 'hashuint8';
+    AS '$libdir/pg_ethereum', 'uint8hash';
 
 CREATE OPERATOR CLASS uint8_ops
     DEFAULT FOR TYPE uint8 USING btree FAMILY integer_ops AS
@@ -252,7 +246,7 @@ CREATE OPERATOR CLASS uint8_ops
 CREATE OPERATOR CLASS uint8_ops
     DEFAULT FOR TYPE uint8 USING hash FAMILY integer_ops AS
         OPERATOR        1       =,
-        FUNCTION        1       hashuint8(uint8);
+        FUNCTION        1       uint8hash(uint8);
 
 -- END uint8
 
@@ -296,12 +290,12 @@ CREATE TYPE uint4 (
 );
 
 CREATE CAST (double precision AS uint4) WITH INOUT AS ASSIGNMENT;
-CREATE CAST (int precision AS uint4) WITH INOUT AS ASSIGNMENT;
+CREATE CAST (int AS uint4) WITH INOUT AS ASSIGNMENT;
 CREATE CAST (numeric AS uint4) WITH INOUT AS ASSIGNMENT;
 CREATE CAST (real AS uint4) WITH INOUT AS ASSIGNMENT;
 
-CREATE CAST (int AS double precision) WITH INOUT AS IMPLICIT;
 CREATE CAST (uint4 AS double precision) WITH INOUT AS IMPLICIT;
+CREATE CAST (uint4 AS int) WITH INOUT AS IMPLICIT;
 CREATE CAST (uint4 AS numeric) WITH INOUT AS IMPLICIT;
 CREATE CAST (uint4 AS real) WITH INOUT AS IMPLICIT;
 
@@ -477,11 +471,11 @@ CREATE FUNCTION btuint4sortsupport(internal) RETURNS void
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'btuint4sortsupport';
 
-CREATE FUNCTION hashuint4(uint4) RETURNS int4
+CREATE FUNCTION uint4hash(uint4) RETURNS int4
     IMMUTABLE
     STRICT
     LANGUAGE C
-    AS '$libdir/pg_ethereum', 'hashuint4';
+    AS '$libdir/pg_ethereum', 'uint4hash';
 
 CREATE OPERATOR CLASS uint4_ops
     DEFAULT FOR TYPE uint4 USING btree FAMILY integer_ops AS
@@ -496,7 +490,7 @@ CREATE OPERATOR CLASS uint4_ops
 CREATE OPERATOR CLASS uint4_ops
     DEFAULT FOR TYPE uint4 USING hash FAMILY integer_ops AS
         OPERATOR        1       =,
-        FUNCTION        1       hashuint4(uint4);
+        FUNCTION        1       uint4hash(uint4);
 
 -- END uint4
 
@@ -545,3 +539,10 @@ CREATE TYPE uint4hex (
 );
 
 -- END uint4hex
+
+-- START aliases
+
+CREATE DOMAIN fork_hash AS uint4hex;
+
+-- END aliases
+

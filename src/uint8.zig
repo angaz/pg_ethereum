@@ -66,11 +66,11 @@ pub export fn btuint8sortsupport(fcinfo: pg.FunctionCallInfo) pg.Datum {
     return uint.sortSupport(u64, fcinfo);
 }
 
-pub export fn pg_finfo_hashuint8() pg.FinfoRecord {
+pub export fn pg_finfo_uint8hash() pg.FinfoRecord {
     return pg.function_info_v1();
 }
 
-pub export fn hashuint8(fcinfo: pg.FunctionCallInfo) pg.Datum {
+pub export fn uint8hash(fcinfo: pg.FunctionCallInfo) pg.Datum {
     const value = pg.getArgValue(u64, fcinfo, 0);
 
     const lo: u32 = @truncate(value);
@@ -127,7 +127,7 @@ pub export fn uint8uint8gt(fcinfo: pg.FunctionCallInfo) pg.Datum {
     return uint.gt(u64, u64, fcinfo);
 }
 
-pub export fn pg_finfo_uint8uint8plus() pg.FinfoRecord {
+pub export fn pg_finfo_uint8uint8add() pg.FinfoRecord {
     return pg.function_info_v1();
 }
 
@@ -135,7 +135,7 @@ pub export fn uint8uint8add(fcinfo: pg.FunctionCallInfo) pg.Datum {
     return uint.add(u64, u64, fcinfo);
 }
 
-pub export fn pg_finfo_uint8uint8minus() pg.FinfoRecord {
+pub export fn pg_finfo_uint8uint8sub() pg.FinfoRecord {
     return pg.function_info_v1();
 }
 

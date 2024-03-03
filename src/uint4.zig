@@ -124,7 +124,7 @@ pub export fn uint4uint4gt(fcinfo: pg.FunctionCallInfo) pg.Datum {
     return uint.gt(u32, u32, fcinfo);
 }
 
-pub export fn pg_finfo_uint4uint4plus() pg.FinfoRecord {
+pub export fn pg_finfo_uint4uint4add() pg.FinfoRecord {
     return pg.function_info_v1();
 }
 
@@ -132,7 +132,7 @@ pub export fn uint4uint4add(fcinfo: pg.FunctionCallInfo) pg.Datum {
     return uint.add(u32, u32, fcinfo);
 }
 
-pub export fn pg_finfo_uint4uint4minus() pg.FinfoRecord {
+pub export fn pg_finfo_uint4uint4sub() pg.FinfoRecord {
     return pg.function_info_v1();
 }
 
