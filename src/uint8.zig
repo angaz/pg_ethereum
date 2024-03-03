@@ -7,7 +7,15 @@ pub export fn pg_finfo_uint8in() pg.FinfoRecord {
 }
 
 pub export fn uint8in(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.in(u64, fcinfo);
+    return uint.in(u64, 10, fcinfo);
+}
+
+pub export fn pg_finfo_uint8inhex() pg.FinfoRecord {
+    return pg.function_info_v1();
+}
+
+pub export fn uint8inhex(fcinfo: pg.FunctionCallInfo) pg.Datum {
+    return uint.in(u64, 16, fcinfo);
 }
 
 pub export fn pg_finfo_uint8out() pg.FinfoRecord {
@@ -15,7 +23,15 @@ pub export fn pg_finfo_uint8out() pg.FinfoRecord {
 }
 
 pub export fn uint8out(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.out(u64, fcinfo);
+    return uint.out(u64, 10, fcinfo);
+}
+
+pub export fn pg_finfo_uint8outhex() pg.FinfoRecord {
+    return pg.function_info_v1();
+}
+
+pub export fn uint8outhex(fcinfo: pg.FunctionCallInfo) pg.Datum {
+    return uint.out(u64, 16, fcinfo);
 }
 
 pub export fn pg_finfo_uint8receive() pg.FinfoRecord {

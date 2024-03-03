@@ -1,4 +1,15 @@
+CREATE TYPE uint4;
+CREATE TYPE uint4hex;
 CREATE TYPE uint8;
+CREATE TYPE uint8hex;
+
+-- START aliases
+
+CREATE TYPE fork_hash AS uint4hex;
+
+-- END aliases
+
+-- START uint8
 
 CREATE FUNCTION uint8in(cstring) RETURNS uint8
     IMMUTABLE
@@ -243,7 +254,9 @@ CREATE OPERATOR CLASS uint8_ops
         OPERATOR        1       =,
         FUNCTION        1       hashuint8(uint8);
 
-CREATE TYPE uint4;
+-- END uint8
+
+-- START uint4
 
 CREATE FUNCTION uint4in(cstring) RETURNS uint4
     IMMUTABLE
@@ -257,12 +270,29 @@ CREATE FUNCTION uint4out(uint4) RETURNS cstring
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4out';
 
+CREATE FUNCTION uint4receive(internal) RETURNS uint4
+    IMMUTABLE
+    STRICT
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'uint4receive';
+
+CREATE FUNCTION uint4send(uint4) RETURNS bytea
+    IMMUTABLE
+    STRICT
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'uint4send';
+
 CREATE TYPE uint4 (
     INPUT = uint4in,
     OUTPUT = uint4out,
-    INTERNALLENGTH = 4,
+    RECEIVE = uint4receive,
+    SEND = uint4send,
+    INTERNALLENGTH = 8,
     PASSEDBYVALUE,
-    ALIGNMENT = int4
+    -- Only value for 8-byte alignment:
+    --   search for `or double` to see the available types
+    --   https://www.postgresql.org/docs/current/sql-createtype.html
+    ALIGNMENT = double
 );
 
 CREATE CAST (double precision AS uint4) WITH INOUT AS ASSIGNMENT;
@@ -468,3 +498,50 @@ CREATE OPERATOR CLASS uint4_ops
         OPERATOR        1       =,
         FUNCTION        1       hashuint4(uint4);
 
+-- END uint4
+
+-- START uint8hex
+
+CREATE TYPE uint8hex;
+
+CREATE FUNCTION uint8inhex(cstring) RETURNS uint8hex
+    IMMUTABLE
+    STRICT
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'uint8inhex';
+
+CREATE FUNCTION uint8outhex(uint8hex) RETURNS cstring
+    IMMUTABLE
+    STRICT
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'uint8outhex';
+
+CREATE TYPE uint8hex (
+    INPUT = uint8inhex,
+    OUTPUT = uint8outhex,
+    LIKE = uint8
+);
+
+-- END uint8hex
+
+-- START uint4hex
+
+CREATE FUNCTION uint4inhex(cstring) RETURNS uint4hex
+    IMMUTABLE
+    STRICT
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'uint4inhex';
+
+CREATE FUNCTION uint4outhex(uint4hex) RETURNS cstring
+    IMMUTABLE
+    STRICT
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'uint4outhex';
+
+CREATE TYPE uint4hex (
+    INPUT = uint4inhex,
+    OUTPUT = uint4outhex,
+    LIKE = uint4
+);
+
+-- END uint4hex
