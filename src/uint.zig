@@ -55,10 +55,142 @@ pub inline fn receive(comptime T: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
     return pg.getDatum(value);
 }
 
+pub inline fn send(comptime T: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const value = pg.getArgValue(T, fcinfo, 0);
+    const msg: pg.StringInfo = undefined;
+
+    pg.pq_begintypsend(msg);
+
+    switch (T) {
+        u64 => pg.pq_sendint64(msg, value),
+        u32 => pg.pq_sendint32(msg, value),
+        else => unreachable,
+    }
+
+    const bytea = pg.pq_endtypsend(msg);
+
+    return pg.PointerGetDatum(bytea);
+}
+
+pub fn makeBTreeFastCMP(comptime T: type) fn (pg.Datum, pg.Datum, pg.SortSupport) i32 {
+    const func = struct {
+        fn fastcmp(arg1: pg.Datum, arg2: pg.Datum, _: pg.SortSupport) callconv(.C) i32 {
+            const a = pg.datumGetValue(T, arg1);
+            const b = pg.datumGetValue(T, arg2);
+
+            return cmp(a, b);
+        }
+    };
+
+    return func.fastcmp;
+}
+
 pub inline fn cmp(a: anytype, b: anytype) i32 {
     if (a > b)
         return 1;
     if (a == b)
         return 0;
     return -1;
+}
+
+pub inline fn btCmp(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const arg1 = pg.getArgValue(Ta, fcinfo, 0);
+    const arg2 = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.Int32GetDatum(cmp(arg1, arg2));
+}
+
+pub inline fn sortSupport(comptime T: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const ssup = pg.getArgPointer(pg.SortSupport, fcinfo, 0);
+
+    ssup.*.comparator = makeBTreeFastCMP(T);
+
+    return pg.datumNull();
+}
+
+pub inline fn lt(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.BoolGetDatum(a < b);
+}
+
+pub inline fn le(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.BoolGetDatum(a <= b);
+}
+
+pub inline fn eq(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.BoolGetDatum(a == b);
+}
+
+pub inline fn ne(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.BoolGetDatum(a != b);
+}
+
+pub inline fn ge(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.BoolGetDatum(a >= b);
+}
+
+pub inline fn gt(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.BoolGetDatum(a > b);
+}
+
+pub inline fn add(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.getDatum(a + b);
+}
+
+pub inline fn sub(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.getDatum(a - b);
+}
+
+pub inline fn multiply(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.getDatum(a * b);
+}
+
+pub inline fn divide(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    if (b == 0) {
+        pg.error_report(
+            pg.ERROR,
+            pg.ERRCODE_DIVISION_BY_ZERO,
+            "division by zero",
+        );
+
+        return pg.datumNull();
+    }
+
+    return pg.getDatum(a / b);
+}
+
+pub inline fn mod(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
+
+    return pg.getDatum(a % b);
 }

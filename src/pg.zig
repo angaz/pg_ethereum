@@ -11,6 +11,8 @@ const pg = @cImport({
 // Export the `pg` namespace
 pub usingnamespace pg;
 
+pub const FinfoRecord = [*c]const pg.Pg_finfo_record;
+
 pub fn error_report(elevel: c_int, errcode: c_int, errmsg: [:0]const u8) void {
     // pg.pg_prevent_errno_in_scope();
 
@@ -25,7 +27,6 @@ pub fn error_report(elevel: c_int, errcode: c_int, errmsg: [:0]const u8) void {
 
 // Deserializes a Postgres text value into a Zig slice
 pub fn span_text(arg: [*c]pg.text) []u8 {
-    std.debug.print("len: {d}\n", .{arg.*.vl_len_});
     return VARDATA_ANY(arg)[0..@intCast(VARSIZE_ANY_EXHDR(arg))];
 }
 
@@ -39,8 +40,12 @@ pub inline fn function_info_v1() [*c]const pg.Pg_finfo_record {
     return &finfo.static;
 }
 
+pub inline fn datumGetValue(comptime T: type, datum: pg.Datum) T {
+    return @as(T, @bitCast(datum));
+}
+
 pub inline fn getArgValue(comptime T: type, fcinfo: pg.FunctionCallInfo, n: usize) T {
-    return @as(T, @bitCast(fcinfo.*.args()[n].value));
+    return datumGetValue(T, fcinfo.*.args()[n].value);
 }
 
 pub inline fn datumNull() pg.Datum {
