@@ -51,7 +51,7 @@
         };
 
         packages = {
-          pg_ethereum = pkgs.stdenv.mkDerivation {
+          pg_ethereum = pkgs.stdenv.mkDerivation rec {
             pname = "pg_ethereum";
             version = "0.0.1";
 
@@ -79,7 +79,11 @@
               mkdir -p $out/share/postgresql/extension
 
               mv $out/lib/libpg_ethereum.so $out/lib/pg_ethereum.so
-              cp extension/*                $out/share/postgresql/extension/
+              cat extension/uint4.sql \
+                  extension/uint8.sql \
+                  extension/fork_hash.sql \
+              > $out/share/postgresql/extension/pg_ethereum--${version}.sql
+              cp extension/pg_ethereum.control $out/share/postgresql/extension/
             '';
           };
         };
