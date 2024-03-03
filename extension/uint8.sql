@@ -261,3 +261,6 @@ CREATE TYPE uint8hex (
     OUTPUT = uint8outhex,
     LIKE = uint8
 );
+
+CREATE CAST (uint8 AS uint8hex) WITHOUT FUNCTION AS ASSIGNMENT;
+CREATE CAST (uint8hex AS uint8) WITHOUT FUNCTION AS IMPLICIT;

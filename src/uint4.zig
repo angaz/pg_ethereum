@@ -34,7 +34,7 @@ pub export fn uint4outhex(fcinfo: pg.FunctionCallInfo) pg.Datum {
     return uint.out(u32, 16, fcinfo);
 }
 
-pub export fn pg_info_uint4hash() pg.FinfoRecord {
+pub export fn pg_finfo_uint4hash() pg.FinfoRecord {
     return pg.function_info_v1();
 }
 
