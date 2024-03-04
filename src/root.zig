@@ -6,3 +6,4 @@ pub usingnamespace @import("./uint4.zig");
 pub usingnamespace @import("./uint8.zig");
 pub usingnamespace @import("./array32.zig");
 pub usingnamespace @import("./array64.zig");
+pub usingnamespace @import("./node_id.zig");
