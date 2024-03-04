@@ -4,24 +4,28 @@ CREATE TYPE uint4hex;
 CREATE FUNCTION uint4in(cstring) RETURNS uint4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4in';
 
 CREATE FUNCTION uint4out(uint4) RETURNS cstring
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4out';
 
 CREATE FUNCTION uint4receive(internal) RETURNS uint4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4receive';
 
 CREATE FUNCTION uint4send(uint4) RETURNS bytea
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4send';
 
@@ -30,12 +34,12 @@ CREATE TYPE uint4 (
     OUTPUT = uint4out,
     RECEIVE = uint4receive,
     SEND = uint4send,
-    INTERNALLENGTH = 8,
+    INTERNALLENGTH = 4,
     PASSEDBYVALUE,
     -- Only value for 8-byte alignment:
     --   search for `or double` to see the available types
     --   https://www.postgresql.org/docs/current/sql-createtype.html
-    ALIGNMENT = double
+    ALIGNMENT = int4
 );
 
 CREATE CAST (int AS uint4) WITH INOUT AS ASSIGNMENT;
@@ -49,6 +53,7 @@ CREATE CAST (uint4 AS real) WITH INOUT AS IMPLICIT;
 CREATE FUNCTION uint4uint4lt(uint4, uint4) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4lt';
 
@@ -65,6 +70,7 @@ CREATE OPERATOR < (
 CREATE FUNCTION uint4uint4le(uint4, uint4) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4le';
 
@@ -81,6 +87,7 @@ CREATE OPERATOR <= (
 CREATE FUNCTION uint4uint4eq(uint4, uint4) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4eq';
 
@@ -99,6 +106,7 @@ CREATE OPERATOR = (
 CREATE FUNCTION uint4uint4ne(uint4, uint4) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4ne';
 
@@ -115,6 +123,7 @@ CREATE OPERATOR <> (
 CREATE FUNCTION uint4uint4ge(uint4, uint4) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4ge';
 
@@ -131,6 +140,7 @@ CREATE OPERATOR >= (
 CREATE FUNCTION uint4uint4gt(uint4, uint4) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4gt';
 
@@ -147,12 +157,14 @@ CREATE OPERATOR > (
 CREATE FUNCTION btuint4uint4cmp(uint4, uint4) RETURNS integer
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'btuint4uint4cmp';
 
 CREATE FUNCTION uint4uint4add(uint4, uint4) RETURNS uint4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4add';
 
@@ -166,6 +178,7 @@ CREATE OPERATOR + (
 CREATE FUNCTION uint4uint4sub(uint4, uint4) RETURNS uint4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4sub';
 
@@ -178,6 +191,7 @@ CREATE OPERATOR - (
 CREATE FUNCTION uint4uint4multiply(uint4, uint4) RETURNS uint4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4multiply';
 
@@ -191,6 +205,7 @@ CREATE OPERATOR * (
 CREATE FUNCTION uint4uint4divide(uint4, uint4) RETURNS uint4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4divide';
 
@@ -203,6 +218,7 @@ CREATE OPERATOR / (
 CREATE FUNCTION mod(uint4, uint4) RETURNS uint4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4uint4mod';
 
@@ -215,12 +231,14 @@ CREATE OPERATOR % (
 CREATE FUNCTION btuint4sortsupport(internal) RETURNS void
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'btuint4sortsupport';
 
 CREATE FUNCTION uint4hash(uint4) RETURNS int4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4hash';
 
@@ -242,12 +260,14 @@ CREATE OPERATOR CLASS uint4_ops
 CREATE FUNCTION uint4inhex(cstring) RETURNS uint4hex
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4inhex';
 
 CREATE FUNCTION uint4outhex(uint4hex) RETURNS cstring
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint4outhex';
 
@@ -258,6 +278,4 @@ CREATE TYPE uint4hex (
 );
 
 CREATE CAST (uint4 AS uint4hex) WITHOUT FUNCTION AS ASSIGNMENT;
-CREATE CAST (int4 AS uint4hex) WITHOUT FUNCTION AS ASSIGNMENT;
 CREATE CAST (uint4hex AS uint4) WITHOUT FUNCTION AS IMPLICIT;
-CREATE CAST (uint4hex AS int4) WITHOUT FUNCTION AS IMPLICIT;

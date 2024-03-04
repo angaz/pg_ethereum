@@ -48,6 +48,11 @@ pub inline fn datumGetValue(comptime T: type, datum: pg.Datum) T {
     }
 }
 
+pub inline fn datumGetSlice(comptime len: usize, datum: pg.Datum) []u8 {
+    const buf = datumGetPointer([*]u8, datum);
+    return buf[0..len];
+}
+
 pub inline fn getArgValue(comptime T: type, fcinfo: pg.FunctionCallInfo, n: usize) T {
     return datumGetValue(T, fcinfo.*.args()[n].value);
 }
@@ -66,12 +71,25 @@ pub inline fn getArgCString(fcinfo: pg.FunctionCallInfo, n: usize) []u8 {
     return std.mem.span(inStr);
 }
 
+pub inline fn datumGetPointer(comptime T: type, datum: pg.Datum) T {
+    return @as(T, @ptrCast(@alignCast(pg.DatumGetPointer(datum))));
+}
+
 pub inline fn getArgPointer(comptime T: type, fcinfo: pg.FunctionCallInfo, n: usize) T {
-    return @ptrCast(@alignCast(pg.DatumGetPointer(fcinfo.*.args()[n].value)));
+    return datumGetPointer(T, fcinfo.*.args()[n].value);
+}
+
+pub inline fn getArgSlice(comptime len: usize, fcinfo: pg.FunctionCallInfo, n: usize) []u8 {
+    return datumGetSlice(len, fcinfo.*.args()[n].value);
 }
 
 pub fn pq_getmsguint64(msg: pg.StringInfo) u64 {
     return @bitCast(pg.pq_getmsgint64(msg));
+}
+
+pub fn pallocArray(len: usize) ?[]u8 {
+    const buf = pg.palloc(len) orelse return null;
+    return @as([*c]u8, @ptrCast(buf))[0..len];
 }
 
 // Macros that failed to get translated properly by translate-c, needed for varint deserialization
@@ -108,12 +126,21 @@ pub inline fn VARSIZE_EXTERNAL(PTR: anytype) @TypeOf(VARHDRSZ_EXTERNAL() + VARTA
 fn VARSIZE_ANY_EXHDR(PTR: anytype) @TypeOf(if (VARATT_IS_1B_E(PTR)) VARSIZE_EXTERNAL(PTR) - VARHDRSZ_EXTERNAL() else if (VARATT_IS_1B(PTR)) VARSIZE_1B(PTR) - VARHDRSZ_SHORT() else VARSIZE_4B(PTR) - pg.VARHDRSZ) {
     return if (VARATT_IS_1B_E(PTR)) VARSIZE_EXTERNAL(PTR) - VARHDRSZ_EXTERNAL() else if (VARATT_IS_1B(PTR)) VARSIZE_1B(PTR) - VARHDRSZ_SHORT() else VARSIZE_4B(PTR) - pg.VARHDRSZ;
 }
+pub inline fn setVarSize4B(PTR: anytype, len: usize) void {
+    std.zig.c_translation.cast([*c]pg.varattrib_4b, PTR).*.va_4byte.va_header = (len << 2) & 0x3FFFFFFF;
+}
+pub inline fn varSize4B(PTR: anytype) u32 {
+    return std.zig.c_translation.cast([*c]pg.varattrib_4b, PTR).*.va_4byte.va_header >> 2;
+}
 
 pub inline fn VARDATA_ANY(PTR: anytype) @TypeOf(if (VARATT_IS_1B(PTR)) VARDATA_1B(PTR) else VARDATA_4B(PTR)) {
     return if (VARATT_IS_1B(PTR)) VARDATA_1B(PTR) else VARDATA_4B(PTR);
 }
 pub inline fn VARDATA_4B(PTR: anytype) @TypeOf(@import("std").zig.c_translation.cast([*c]pg.varattrib_4b, PTR).*.va_4byte.va_data()) {
     return @import("std").zig.c_translation.cast([*c]pg.varattrib_4b, PTR).*.va_4byte.va_data();
+}
+pub inline fn varData4B(PTR: anytype) @TypeOf(@import("std").zig.c_translation.cast([*c]pg.varattrib_4b, PTR).*.va_4byte.va_data()) {
+    return VARDATA_4B(PTR);
 }
 pub inline fn VARDATA_1B(PTR: anytype) @TypeOf(@import("std").zig.c_translation.cast([*c]pg.varattrib_1b, PTR).*.va_data()) {
     return @import("std").zig.c_translation.cast([*c]pg.varattrib_1b, PTR).*.va_data();

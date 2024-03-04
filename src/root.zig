@@ -4,3 +4,5 @@ const pg = @import("./pg.zig");
 pub usingnamespace @import("./pg_magic.zig");
 pub usingnamespace @import("./uint4.zig");
 pub usingnamespace @import("./uint8.zig");
+pub usingnamespace @import("./array32.zig");
+pub usingnamespace @import("./array64.zig");

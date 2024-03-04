@@ -82,6 +82,8 @@
               cat extension/uint4.sql \
                   extension/uint8.sql \
                   extension/fork_hash.sql \
+                  extension/array32.sql \
+                  extension/array64.sql \
               > $out/share/postgresql/extension/pg_ethereum--${version}.sql
               cp extension/pg_ethereum.control $out/share/postgresql/extension/
             '';

@@ -4,24 +4,28 @@ CREATE TYPE uint8hex;
 CREATE FUNCTION uint8in(cstring) RETURNS uint8
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8in';
 
 CREATE FUNCTION uint8out(uint8) RETURNS cstring
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8out';
 
 CREATE FUNCTION uint8receive(internal) RETURNS uint8
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8receive';
 
 CREATE FUNCTION uint8send(uint8) RETURNS bytea
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8send';
 
@@ -38,7 +42,6 @@ CREATE TYPE uint8 (
     ALIGNMENT = double
 );
 
-
 CREATE CAST (bigint AS uint8) WITH INOUT AS ASSIGNMENT;
 CREATE CAST (double precision AS uint8) WITH INOUT AS ASSIGNMENT;
 CREATE CAST (int AS uint8) WITH INOUT AS ASSIGNMENT;
@@ -54,6 +57,7 @@ CREATE CAST (uint8 AS real) WITH INOUT AS IMPLICIT;
 CREATE FUNCTION uint8uint8lt(uint8, uint8) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8lt';
 
@@ -70,6 +74,7 @@ CREATE OPERATOR < (
 CREATE FUNCTION uint8uint8le(uint8, uint8) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8le';
 
@@ -86,6 +91,7 @@ CREATE OPERATOR <= (
 CREATE FUNCTION uint8uint8eq(uint8, uint8) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8eq';
 
@@ -104,6 +110,7 @@ CREATE OPERATOR = (
 CREATE FUNCTION uint8uint8ne(uint8, uint8) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8ne';
 
@@ -120,6 +127,7 @@ CREATE OPERATOR <> (
 CREATE FUNCTION uint8uint8ge(uint8, uint8) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8ge';
 
@@ -136,6 +144,7 @@ CREATE OPERATOR >= (
 CREATE FUNCTION uint8uint8gt(uint8, uint8) RETURNS boolean
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8gt';
 
@@ -152,12 +161,14 @@ CREATE OPERATOR > (
 CREATE FUNCTION btuint8uint8cmp(uint8, uint8) RETURNS integer
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'btuint8uint8cmp';
 
 CREATE FUNCTION uint8uint8add(uint8, uint8) RETURNS uint8
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8add';
 
@@ -171,6 +182,7 @@ CREATE OPERATOR + (
 CREATE FUNCTION uint8uint8sub(uint8, uint8) RETURNS uint8
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8sub';
 
@@ -183,6 +195,7 @@ CREATE OPERATOR - (
 CREATE FUNCTION uint8uint8multiply(uint8, uint8) RETURNS uint8
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8multiply';
 
@@ -196,6 +209,7 @@ CREATE OPERATOR * (
 CREATE FUNCTION uint8uint8divide(uint8, uint8) RETURNS uint8
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8divide';
 
@@ -208,6 +222,7 @@ CREATE OPERATOR / (
 CREATE FUNCTION mod(uint8, uint8) RETURNS uint8
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8uint8mod';
 
@@ -220,12 +235,14 @@ CREATE OPERATOR % (
 CREATE FUNCTION btuint8sortsupport(internal) RETURNS void
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'btuint8sortsupport';
 
 CREATE FUNCTION uint8hash(uint8) RETURNS int4
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8hash';
 
@@ -247,12 +264,14 @@ CREATE OPERATOR CLASS uint8_ops
 CREATE FUNCTION uint8inhex(cstring) RETURNS uint8hex
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8inhex';
 
 CREATE FUNCTION uint8outhex(uint8hex) RETURNS cstring
     IMMUTABLE
     STRICT
+    PARALLEL SAFE
     LANGUAGE C
     AS '$libdir/pg_ethereum', 'uint8outhex';
 

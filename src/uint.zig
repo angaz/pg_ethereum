@@ -39,8 +39,8 @@ pub inline fn out(comptime T: type, comptime base: u8, fcinfo: pg.FunctionCallIn
         16 => @sizeOf(T) * 2 + 1,
         else => unreachable,
     };
-    const buf = pg.palloc(outLen) orelse return pg.datumNull();
-    const result: []u8 = @as([*c]u8, @ptrCast(buf))[0..outLen];
+
+    const result = pg.pallocArray(outLen) orelse return pg.datumNull();
 
     const pos = std.fmt.formatIntBuf(result, value, base, std.fmt.Case.lower, .{});
     @memset(result[pos..], 0);
@@ -98,10 +98,10 @@ pub inline fn cmp(a: anytype, b: anytype) i32 {
 }
 
 pub inline fn btCmp(comptime Ta: type, comptime Tb: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
-    const arg1 = pg.getArgValue(Ta, fcinfo, 0);
-    const arg2 = pg.getArgValue(Tb, fcinfo, 1);
+    const a = pg.getArgValue(Ta, fcinfo, 0);
+    const b = pg.getArgValue(Tb, fcinfo, 1);
 
-    return pg.Int32GetDatum(cmp(arg1, arg2));
+    return pg.Int32GetDatum(cmp(a, b));
 }
 
 pub inline fn sortSupport(comptime T: type, fcinfo: pg.FunctionCallInfo) pg.Datum {
