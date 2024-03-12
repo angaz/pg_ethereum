@@ -15,6 +15,10 @@
     // Once all dependencies are fetched, `zig build` no longer requires
     // internet connectivity.
     .dependencies = .{
+        .@"zig-rlp" = .{
+            .url = "https://github.com/angaz/zig-rlp/archive/da44f39e0670783afeecfe49c33a7a84af876f65.tar.gz",
+            .hash = "122038dcc6b7cf765674164beb19c0698af8eee71f150ee7e073086ced4d59ec4c2f",
+        },
     },
     .paths = .{
         // This makes *all* files, recursively, included in this package. It is generally

@@ -68,6 +68,8 @@
             buildPhase = ''
               mkdir -p .cache
 
+              ln -s ${pkgs.callPackage ./deps.nix { }} $(pwd)/.cache/p
+
               zig build \
                 --color off \
                 --cache-dir $(pwd)/zig-cache \
@@ -85,6 +87,7 @@
                   extension/array32.sql \
                   extension/array64.sql \
                   extension/node_id.sql \
+                  extension/rlp.sql \
               > $out/share/postgresql/extension/pg_ethereum--${version}.sql
               cp extension/pg_ethereum.control $out/share/postgresql/extension/
             '';

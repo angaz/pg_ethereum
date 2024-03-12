@@ -62,6 +62,10 @@ pub inline fn datumNull() pg.Datum {
 }
 
 pub inline fn getDatum(value: anytype) pg.Datum {
+    if (@TypeOf(value) == i64) {
+        return @as(pg.Datum, @bitCast(value));
+    }
+
     return @as(pg.Datum, @bitCast(@as(u64, value)));
 }
 
@@ -81,6 +85,13 @@ pub inline fn getArgPointer(comptime T: type, fcinfo: pg.FunctionCallInfo, n: us
 
 pub inline fn getArgSlice(comptime len: usize, fcinfo: pg.FunctionCallInfo, n: usize) []u8 {
     return datumGetSlice(len, fcinfo.*.args()[n].value);
+}
+
+pub inline fn getArgBytea(fcinfo: pg.FunctionCallInfo, n: usize) []u8 {
+    const bytea = pg.DatumGetByteaP(fcinfo.*.args()[n].value);
+    const len = varSize4B(bytea) - pg.VARHDRSZ;
+
+    return varData4B(bytea)[0..len];
 }
 
 pub fn pq_getmsguint64(msg: pg.StringInfo) u64 {

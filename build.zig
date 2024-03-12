@@ -34,6 +34,14 @@ pub fn build(b: *std.Build) void {
     // running `zig build`).
     b.installArtifact(lib);
 
+    lib.root_module.addImport(
+        "zig-rlp",
+        b.dependency("zig-rlp", .{
+            .target = target,
+            .optimize = optimize,
+        }).module("rlp"),
+    );
+
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
     const lib_unit_tests = b.addTest(.{
