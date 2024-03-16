@@ -2,7 +2,9 @@ const std = @import("std");
 const pg = @cImport({
     @cInclude("postgres.h");
     @cInclude("access/hash.h");
+    @cInclude("executor/executor.h");
     @cInclude("fmgr.h");
+    @cInclude("funcapi.h");
     @cInclude("libpq/pqformat.h");
     @cInclude("utils/sortsupport.h");
     @cInclude("varatt.h");
@@ -103,6 +105,25 @@ pub fn pallocArray(len: usize) ?[]u8 {
     return @as([*c]u8, @ptrCast(buf))[0..len];
 }
 
+pub fn pallocBytea(len: usize) ?[*c]pg.bytea {
+    const buf = pg.palloc(pg.VARHDRSZ + len) orelse return null;
+    setVarSize4B(buf, pg.VARHDRSZ + len);
+
+    return @ptrCast(buf);
+}
+
+pub fn sliceToBytea(s: []const u8) ?[*c]pg.bytea {
+    const bytea = pallocBytea(s.len) orelse return null;
+    @memcpy(varData4B(bytea)[0..s.len], s);
+
+    return bytea;
+}
+
+pub fn pallocArrayOf(comptime T: type, len: usize) ?[*c]T {
+    const buf = pg.palloc(@sizeOf(T) * len) orelse return null;
+    return @as([*c]T, @ptrCast(@alignCast(buf)));
+}
+
 // Macros that failed to get translated properly by translate-c, needed for varint deserialization
 pub inline fn VARTAG_1B_E(PTR: anytype) @TypeOf(@import("std").zig.c_translation.cast([*c]pg.varattrib_1b_e, PTR).*.va_tag) {
     return @import("std").zig.c_translation.cast([*c]pg.varattrib_1b_e, PTR).*.va_tag;
@@ -138,7 +159,7 @@ fn VARSIZE_ANY_EXHDR(PTR: anytype) @TypeOf(if (VARATT_IS_1B_E(PTR)) VARSIZE_EXTE
     return if (VARATT_IS_1B_E(PTR)) VARSIZE_EXTERNAL(PTR) - VARHDRSZ_EXTERNAL() else if (VARATT_IS_1B(PTR)) VARSIZE_1B(PTR) - VARHDRSZ_SHORT() else VARSIZE_4B(PTR) - pg.VARHDRSZ;
 }
 pub inline fn setVarSize4B(PTR: anytype, len: usize) void {
-    std.zig.c_translation.cast([*c]pg.varattrib_4b, PTR).*.va_4byte.va_header = (len << 2) & 0x3FFFFFFF;
+    std.zig.c_translation.cast([*c]pg.varattrib_4b, PTR).*.va_4byte.va_header = (@as(c_uint, @intCast(len)) << 2) & 0x3FFFFFFF;
 }
 pub inline fn varSize4B(PTR: anytype) u32 {
     return std.zig.c_translation.cast([*c]pg.varattrib_4b, PTR).*.va_4byte.va_header >> 2;

@@ -90,10 +90,7 @@ pub fn FixedBytes(comptime len: usize) type {
         pub inline fn arrayToBytea(fcinfo: pg.FunctionCallInfo) pg.Datum {
             const array = pg.getArgSlice(len, fcinfo, 0);
 
-            const result: [*c]pg.bytea = @ptrCast(pg.palloc(len + pg.VARHDRSZ) orelse return pg.datumNull());
-            pg.setVarSize4B(result, len + pg.VARHDRSZ);
-
-            @memcpy(pg.varData4B(result)[0..len], array);
+            const result = pg.sliceToBytea(array) orelse return pg.datumNull();
 
             return pg.PointerGetDatum(result);
         }

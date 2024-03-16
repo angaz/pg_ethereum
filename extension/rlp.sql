@@ -43,3 +43,38 @@ CREATE FUNCTION to_string(rlp) RETURNS cstring
 
 CREATE CAST (bytea AS rlp) WITH INOUT AS ASSIGNMENT;
 CREATE CAST (rlp AS int8) WITH FUNCTION rlp_decode_int64 AS ASSIGNMENT;
+
+CREATE TYPE double_string AS (
+    t    text,
+    u    text
+);
+
+CREATE TYPE single_string AS (
+    t    text
+);
+
+CREATE TYPE rlp_complex AS (
+    t    text,
+    u    int8
+);
+
+CREATE FUNCTION decode_single_string(rlp) RETURNS single_string
+    IMMUTABLE
+    STRICT
+    PARALLEL SAFE
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'rlp_decode_record';
+
+CREATE FUNCTION decode_double_string(rlp) RETURNS double_string
+    IMMUTABLE
+    STRICT
+    PARALLEL SAFE
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'rlp_decode_record';
+
+CREATE FUNCTION decode_complex(rlp) RETURNS rlp_complex
+    IMMUTABLE
+    STRICT
+    PARALLEL SAFE
+    LANGUAGE C
+    AS '$libdir/pg_ethereum', 'rlp_decode_record';
