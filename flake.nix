@@ -51,18 +51,19 @@
         };
 
         packages = {
-          pg_ethereum = pkgs.stdenv.mkDerivation rec {
+          pg_ethereum = pkgs.stdenv.mkDerivation {
             pname = "pg_ethereum";
             version = "0.0.1";
 
             src = gitignoreSource ./.;
 
             buildInputs = with pkgs; [
+              libkrb5.dev
+              openssl.dev
               postgresql_16
-              pkg-config
             ];
             nativeBuildInputs = [
-              zig.master-2024-02-23
+              zig.master-2024-03-22
             ];
 
             buildPhase = ''
@@ -76,34 +77,37 @@
                 --global-cache-dir $(pwd)/.cache \
                 --prefix $out
             '';
-
-            installPhase = ''
-              mkdir -p $out/share/postgresql/extension
-
-              mv $out/lib/libpg_ethereum.so $out/lib/pg_ethereum.so
-              cat extension/uint4.sql \
-                  extension/uint8.sql \
-                  extension/fork_hash.sql \
-                  extension/array32.sql \
-                  extension/array64.sql \
-                  extension/node_id.sql \
-                  extension/rlp.sql \
-              > $out/share/postgresql/extension/pg_ethereum--${version}.sql
-              cp extension/pg_ethereum.control $out/share/postgresql/extension/
-            '';
           };
         };
 
         devshells.default = {
-          commands = [
+          env = [
+            {
+              # Needed to be able to run `zig build` outside of the package build env
+              name = "LD_LIBRARY_PATH";
+              value = "LD_LIBRARY_PATH:${pkgs.libkrb5.dev}/include:${pkgs.openssl.dev}/include:${pkgs.postgresql_16}/include";
+            }
           ];
 
           packages = with pkgs; [
+            # run `direnv reload` to rebuild the package, and install it a local PG install
             (postgresql_16.withPackages (p: [self.packages.${system}.pg_ethereum]))
-            clang-tools  # For clangd lsp
-            zon2nix
 
-            zig.master-2024-02-23
+            # Fixes https://github.com/nix-community/zon2nix/pull/8
+            (zon2nix.overrideAttrs (o: {
+              patches = (o.patches or [] ++ [
+                (pkgs.fetchpatch {
+                  url = "https://patch-diff.githubusercontent.com/raw/nix-community/zon2nix/pull/8.patch";
+                  hash = "sha256-uZrEdJKKmNfW+OVFWbcimLRUv8IDLQtYQ87zIorq3Zc=";
+                })
+              ]);
+            }))
+
+            # PGZX build dependencies
+            libkrb5.dev
+            openssl.dev
+
+            zig.master-2024-03-22
             zls
           ];
         };

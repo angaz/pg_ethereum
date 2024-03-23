@@ -13,11 +13,13 @@ INSERT INTO test1
 VALUES
     (0::float8),
     (1::numeric),
-    (100::bigint),
     (1000::int),
-    ('17223372036854775808'),  -- Value bigger than int8
-    ('18446744073709551615')   -- Max uint8 (2**64-1)
-RETURNING val1;
+    (100::bigint),
+    ('18446744073709551615'),   -- Max uint8 (2**64-1)
+    ('17223372036854775808')  -- Value bigger than int8
+;
+
+SELECT val1 FROM test1 ORDER BY val1;
 
 DROP TABLE IF EXISTS test2;
 CREATE TABLE test2 (

@@ -1,4 +1,5 @@
 const std = @import("std");
+const pgzx = @import("pgzx");
 const pg = @cImport({
     @cInclude("postgres.h");
     @cInclude("access/hash.h");
@@ -14,6 +15,12 @@ const pg = @cImport({
 pub usingnamespace pg;
 
 pub const FinfoRecord = [*c]const pg.Pg_finfo_record;
+
+pub inline fn PG_FUNCTION_V1_RAW(comptime name: []const u8, comptime callback: anytype) void {
+    pgzx.PG_FUNCTION_INFO_V1(name);
+
+    @export(callback, .{ .name = name });
+}
 
 pub fn error_report(elevel: c_int, errcode: c_int, errmsg: [:0]const u8) void {
     // pg.pg_prevent_errno_in_scope();

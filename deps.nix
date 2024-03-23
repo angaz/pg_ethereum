@@ -10,4 +10,11 @@ linkFarm "zig-packages" [
       hash = "sha256-cTCIJ1YQSyxqTtGMctpmSptEQuYV9e2UgjMo+CQKOxI=";
     };
   }
+  {
+    name = "12203c4cbd20334f0f74082074a398b5349355f458677f3ca6721349aabe17630c07";
+    path = fetchzip {
+      url = "https://github.com/angaz/pgzx/archive/5e61eb2fb819d8546ae46544d0c63292f96143ab.tar.gz";
+      hash = "sha256-7+ai9R8vf1gFCcgugaJfR43Uk2QVWf9Ez/GW6YX6o3o=";
+    };
+  }
 ]

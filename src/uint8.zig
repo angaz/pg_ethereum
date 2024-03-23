@@ -1,168 +1,35 @@
 const std = @import("std");
-const pg = @import("./pg.zig");
+const pgzx = @import("pgzx");
 const uint = @import("./uint.zig");
 
-pub export fn pg_finfo_uint8in() pg.FinfoRecord {
-    return pg.function_info_v1();
+const uint8 = uint.Uint(u64);
+
+comptime {
+    pgzx.PG_FUNCTION_V1("uint8in", uint8.in(10));
+    pgzx.PG_FUNCTION_V1("uint8inhex", uint8.in(16));
+    pgzx.PG_FUNCTION_V1("uint8out", uint8.out(10));
+    pgzx.PG_FUNCTION_V1("uint8outhex", uint8.out(16));
+    pgzx.PG_FUNCTION_V1("btuint8uint8cmp", uint8.btCmp);
+    pgzx.PG_FUNCTION_V1("btuint8sortsupport", uint8.sortSupport);
+    pgzx.PG_FUNCTION_V1("uint8hash", uint8hash);
+    pgzx.PG_FUNCTION_V1("uint8receive", uint8.receive);
+    pgzx.PG_FUNCTION_V1("uint8send", uint8.send);
+    pgzx.PG_FUNCTION_V1("uint8uint8lt", uint8.lt);
+    pgzx.PG_FUNCTION_V1("uint8uint8le", uint8.le);
+    pgzx.PG_FUNCTION_V1("uint8uint8eq", uint8.eq);
+    pgzx.PG_FUNCTION_V1("uint8uint8ne", uint8.ne);
+    pgzx.PG_FUNCTION_V1("uint8uint8ge", uint8.ge);
+    pgzx.PG_FUNCTION_V1("uint8uint8gt", uint8.gt);
+    pgzx.PG_FUNCTION_V1("uint8uint8add", uint8.add);
+    pgzx.PG_FUNCTION_V1("uint8uint8sub", uint8.sub);
+    pgzx.PG_FUNCTION_V1("uint8uint8multiply", uint8.multiply);
+    pgzx.PG_FUNCTION_V1("uint8uint8divide", uint8.divide);
+    pgzx.PG_FUNCTION_V1("uint8uint8mod", uint8.mod);
 }
 
-pub export fn uint8in(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.in(u64, 10, fcinfo);
-}
-
-pub export fn pg_finfo_uint8inhex() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8inhex(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.in(u64, 16, fcinfo);
-}
-
-pub export fn pg_finfo_uint8out() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8out(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.out(u64, 10, fcinfo);
-}
-
-pub export fn pg_finfo_uint8outhex() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8outhex(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.out(u64, 16, fcinfo);
-}
-
-pub export fn pg_finfo_uint8receive() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8receive(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.receive(u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8send() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8send(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.send(u64, fcinfo);
-}
-
-pub export fn pg_finfo_btuint8uint8cmp() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn btuint8uint8cmp(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.btCmp(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_btuint8sortsupport() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn btuint8sortsupport(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.sortSupport(u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8hash() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8hash(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    const value = pg.getArgValue(u64, fcinfo, 0);
-
+pub fn uint8hash(value: u64) !pgzx.c.Datum {
     const lo: u32 = @truncate(value);
     const hi: u32 = @truncate(value >> 32);
 
-    return pg.hash_uint32(lo ^ hi);
-}
-
-pub export fn pg_finfo_uint8uint8lt() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8lt(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.lt(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8le() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8le(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.le(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8eq() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8eq(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.eq(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8ne() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8ne(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.ne(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8ge() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8ge(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.ge(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8gt() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8gt(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.gt(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8add() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8add(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.add(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8sub() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8sub(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.sub(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8multiply() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8multiply(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.multiply(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8divide() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8divide(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.divide(u64, u64, fcinfo);
-}
-
-pub export fn pg_finfo_uint8uint8mod() pg.FinfoRecord {
-    return pg.function_info_v1();
-}
-
-pub export fn uint8uint8mod(fcinfo: pg.FunctionCallInfo) pg.Datum {
-    return uint.mod(u64, u64, fcinfo);
+    return pgzx.c.hash_uint32(lo ^ hi);
 }
