@@ -53,7 +53,7 @@ pub fn Uint(comptime T: type) type {
         }
 
         pub fn send(value: T) !pgzx.c.Datum {
-            const msg: pgzx.c.StringInfo = undefined;
+            const msg: pgzx.c.StringInfo = pgzx.c.makeStringInfo();
 
             pgzx.c.pq_begintypsend(msg);
 

@@ -21,6 +21,8 @@ VALUES
 
 SELECT val1 FROM test1 ORDER BY val1;
 
+\copy (SELECT val1 FROM test1 ORDER BY val1) TO PROGRAM 'hexdump' WITH (FORMAT binary);
+
 DROP TABLE IF EXISTS test2;
 CREATE TABLE test2 (
     val1    uint4    PRIMARY KEY
